@@ -1,0 +1,35 @@
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vida"
+version = "0.1.0"
+description = "VIDA: A modular agent-based automation platform for CI/CD, infrastructure, and code management."
+readme = "README.md"
+authors = [
+  { name="Shashank Tudum, Hari Vardhana Shubhash Ponnamanda", email="shashank.tudum@valuemomentum.com" }
+]
+license = { text = " Valuemomentum services,Hyderabad " }
+
+dependencies = [
+  "sqlalchemy",
+  "pydantic",
+  "python-dotenv",
+  "pygithub",
+  "PyNaCl",
+  "python-hcl2",
+  "pyyaml",
+  "requests",
+  "aiofiles",
+  "httpx",
+  "openai",
+  "pydantic[email]",
+  "pydantic-settings"
+]
+
+requires-python = ">=3.12"
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,64 @@
+Metadata-Version: 2.4
+Name: vida
+Version: 0.1.0
+Summary: VIDA: A modular agent-based automation platform for CI/CD, infrastructure, and code management.
+Author-email: "Shashank Tudum, Hari Vardhana Shubhash Ponnamanda" <shashank.tudum@valuemomentum.com>
+License:  Valuemomentum services,Hyderabad 
+Requires-Python: >=3.12
+Description-Content-Type: text/markdown
+Requires-Dist: fastapi
+Requires-Dist: sqlalchemy
+Requires-Dist: pydantic
+Requires-Dist: python-dotenv
+Requires-Dist: pygithub
+Requires-Dist: PyNaCl
+Requires-Dist: python-hcl2
+Requires-Dist: pyyaml
+Requires-Dist: requests
+Requires-Dist: uvicorn
+Requires-Dist: aiofiles
+Requires-Dist: httpx
+Requires-Dist: openai
+Requires-Dist: pydantic[email]
+Requires-Dist: pydantic-settings
+
+# VIDA
+
+VIDA is a modular agent-based automation platform for CI/CD, infrastructure-as-code, and code management. It integrates with GitHub and other cloud providers to automate workflows, manage configurations, and interact with LLMs.
+
+## Features
+- Modular adapters for GitHub and other integrations
+- FastAPI-based API server
+- Database models and CRUD operations using SQLAlchemy
+- LLM integration (OpenAI)
+- YAML, HCL, and dotenv configuration support
+- Asynchronous operations with aiofiles and httpx
+
+## Project Structure
+
+```
+src/
+  adapters/         # Integration adapters (GitHub, etc.)
+  apis/             # FastAPI routers and endpoints
+  database/         # Database models and connection logic
+  models/           # Pydantic models, validators, and table definitions
+  utils/            # Utility modules (logging, config, LLM, etc.)
+```
+
+## Getting Started
+
+1. **Install dependencies:**
+   ```sh
+   pip install .
+   ```
+2. **Run the API server:**
+   ```sh
+   uvicorn src.apis.router:app --reload
+   ```
+
+## Configuration
+- Environment variables can be set in a `.env` file.
+- YAML and HCL files are supported for advanced configuration.
+
+## License
+MIT
