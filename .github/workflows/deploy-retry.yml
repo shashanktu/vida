@@ -1,0 +1,51 @@
+name: Deploy with Retry
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build --if-present
+
+      - name: Deploy with retries
+        env:
+          MAX_RETRIES: 3
+        run: |
+          set -e
+          RETRY=0
+          until [ "$RETRY" -ge "${MAX_RETRIES}" ]
+          do
+            echo "Attempt $((RETRY+1))..."
+            if npm run deploy --if-present; then
+              echo "Deployment succeeded on attempt $((RETRY+1))."
+              exit 0
+            else
+              RETRY=$((RETRY+1))
+              echo "Deployment failed on attempt $RETRY."
+              if [ "$RETRY" -lt "${MAX_RETRIES}" ]; then
+                echo "Waiting before retry..."
+                sleep $((RETRY * 10))
+              fi
+            fi
+          done
+          echo "Deployment failed after ${MAX_RETRIES} attempts."
+          exit 1
