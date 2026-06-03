@@ -14,6 +14,7 @@ authors = [
 license = { text = " Valuemomentum services,Hyderabad " }
 
 dependencies = [
+  "fastapi",
   "sqlalchemy",
   "pydantic",
   "python-dotenv",
