@@ -7,9 +7,9 @@ PyNaCl
 python-hcl2
 pyyaml
 requests
-uvicorn
 aiofiles
 httpx
 openai
 pydantic[email]
 pydantic-settings
+agent-framework

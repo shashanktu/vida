@@ -15,12 +15,12 @@ Requires-Dist: PyNaCl
 Requires-Dist: python-hcl2
 Requires-Dist: pyyaml
 Requires-Dist: requests
-Requires-Dist: uvicorn
 Requires-Dist: aiofiles
 Requires-Dist: httpx
 Requires-Dist: openai
 Requires-Dist: pydantic[email]
 Requires-Dist: pydantic-settings
+Requires-Dist: agent-framework
 
 # VIDA
 

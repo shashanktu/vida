@@ -26,13 +26,17 @@ class GitHubAPIWrapper:
         repo = self.get_repo(repo_full_name)
         return repo.get_contents(path, ref=ref)
 
-    def get_commits(self, repo_full_name, sha=None, path=None, since=None, until=None, author=None):
+    def get_commits(self, repo_full_name, sha=None, path=None, author=None):
         repo = self.get_repo(repo_full_name)
-        return repo.get_commits(sha=sha, path=path, since=since, until=until, author=author)
+        return repo.get_commits(sha=sha, path=path, author=author)
 
     def get_commit(self, repo_full_name, sha):
-        repo = self.get_repo(repo_full_name)
-        return repo.get_commit(sha)
+        try:
+            repo = self.get_repo(repo_full_name)
+            return repo.get_commit(sha)
+        except Exception as e:
+            print(f"Error getting commit {sha} from {repo_full_name}: {e}")
+            return F"Error getting commit {sha} from {repo_full_name}: {e}"
 
     def edit_repo(self, repo_full_name, **kwargs):
         repo = self.get_repo(repo_full_name)
