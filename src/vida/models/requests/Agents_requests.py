@@ -3,6 +3,7 @@ from typing import Optional
 
 class github_agent_request(BaseModel):
     prompt: str
+    pat_token: Optional[str]
 
 class yaml_agent_request(BaseModel):
     prompt: str
