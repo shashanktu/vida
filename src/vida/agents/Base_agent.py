@@ -18,6 +18,7 @@ class Base_Agent:
     agent_middleware = []
     run_middleware = []
     debug_context = False
+    session = None
 
     def __init__(self):
         self._agent = Agent(
@@ -28,7 +29,7 @@ class Base_Agent:
             context_providers=self.context_providers,
             middleware=self.agent_middleware
         )
-        self._session = self._agent.create_session()
+        self._session = self.session if self.session else self._agent.create_session()
 
     @classmethod
     def get_instance(cls):
@@ -37,7 +38,7 @@ class Base_Agent:
         return cls._instance
 
     # async def run(self, prompt: str):
-    async def run(self, prompt: str, retries: int = 2, tools: list = None):
+    async def run(self, prompt: str, retries: int = 2, tools: list = []):
         try:
             for attempt in range(retries + 1):
                 try:
