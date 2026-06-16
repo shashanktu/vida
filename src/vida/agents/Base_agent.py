@@ -30,6 +30,8 @@ class Base_Agent:
             middleware=self.agent_middleware
         )
         self._session = self.session if self.session else self._agent.create_session()
+        print(f"Session: {self._session}")
+        print(f"[{self.name}] Initialized with model '{self.model}' and endpoint '{self.AI_endpoint}'")
 
     @classmethod
     def get_instance(cls):
@@ -38,14 +40,15 @@ class Base_Agent:
         return cls._instance
 
     # async def run(self, prompt: str):
-    async def run(self, prompt: str, retries: int = 2, tools: list = []):
+    async def run(self, prompt: str, retries: int = 2, tools: list = None, session=None):
         try:
             for attempt in range(retries + 1):
                 try:
                     return await self._agent.run(prompt,
-                                                session=self._session,
+                                                session=session if session else self._session,
                                                 middleware=self.run_middleware,
-                                                tools=tools or [])
+                                                tools=tools or [],
+                                                )
                 except ChatClientException as e:
                     if "Azure CLI" in str(e) and attempt < retries:
                         print(f"Azure CLI not ready, retrying in 2s... (attempt {attempt + 1})")
