@@ -1,35 +1,37 @@
 import os
-# from dotenv import load_dotenv
+from dotenv import load_dotenv
+from AzureSecrets import get_azure_secret_value
 import json
 
-# load_dotenv()
+load_dotenv()
 
-github_token = os.getenv("RAG_GITHUB_TOKEN")
-hari_github_token = os.getenv("HARI_GITHUB_TOKEN")
-model_subscription_key = os.getenv("subscription_key")
-AZURE_AI_API_KEY = os.getenv("subscription_key")
+
+github_token = get_azure_secret_value("RAG-GITHUBTOKEN")
+hari_github_token = get_azure_secret_value("HARI-GITHUB-TOKEN")
+azure_secrets_url = os.environ["Azure-Secrets-URL"]
+
 
 
 class Base_agent_config:
-    model = os.getenv("AI_foundry_model")
-    AI_endpoint = os.getenv("AI_foundry_url")
-    retries = int(os.getenv("Azure_connection_retries", 3))
-    AI_foundry_key = os.getenv("AI_foundry_key")
+    model = get_azure_secret_value("AI-foundry-model")
+    AI_endpoint = get_azure_secret_value("AI-foundry-url")
+    retries = int(get_azure_secret_value("Azure-connection-retries"), 3)
+    # AI_foundry_key = get_azure_secret_value("AI-foundry-key")
 
 class Content_generator_model_config:
-    AI_content_version = os.getenv("AI_content_version")
-    AI_content_endpoint = os.getenv("AI_content_endpoint")
-    AI_content_key = os.getenv("AI_content_key")
-    AI_content_model = os.getenv("AI_content_model")
+    AI_content_version = get_azure_secret_value("AI-content-version")
+    AI_content_endpoint = get_azure_secret_value("AI-content-endpoint")
+    AI_content_key = get_azure_secret_value("AI-content-key")
+    AI_content_model = get_azure_secret_value("AI-content-model")
 
 class DataBase_config:
-    cloud_db = os.getenv("CLOUD_DB_URL")
+    cloud_db = get_azure_secret_value("CLOUD-DB-URL")
 
 class Azure_config:
-    client_id = os.getenv("AZURE_CLIENT_ID")
-    client_secret = os.getenv("AZURE_CLIENT_SECRET")
-    tenant_id = os.getenv("AZURE_TENANT_ID")
-    subscription_id = os.getenv("AZURE_SUBSCRIPTION_ID")
+    client_id = get_azure_secret_value("AZURE-CLIENT-ID")
+    client_secret = get_azure_secret_value("AZURE-CLIENT-SECRET")
+    tenant_id = get_azure_secret_value("AZURE-TENANT-ID")
+    subscription_id = get_azure_secret_value("AZURE-SUBSCRIPTION-ID")
 
 
 #create a dictionary with Azure
