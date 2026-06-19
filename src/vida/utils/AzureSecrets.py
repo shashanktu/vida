@@ -5,7 +5,7 @@ import os
 from dotenv import load_dotenv  
 load_dotenv()
 
-azure_secrets_url = os.environ["Azure-Secrets-URL"]
+azure_secrets_url = os.environ["Azure_Secrets_URL"]
 credential = get_credential()
 client = SecretClient(vault_url = azure_secrets_url, credential=credential)
 
