@@ -9,7 +9,7 @@ load_dotenv()
 github_token = get_azure_secret_value("RAG-GITHUBTOKEN")
 hari_github_token = get_azure_secret_value("HARI-GITHUB-TOKEN")
 azure_secrets_url = os.environ["Azure-Secrets-URL"]
-cli_retries = get_azure_secret_value("Azure_connection_retries")
+cli_retries = get_azure_secret_value("Azure-connection-retries")
 
 
 
