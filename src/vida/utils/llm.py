@@ -4,7 +4,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # import google.generativeai as genai #type: ignore
 import time
-from config import Content_generator_model_config as cgconfig
+from vida.utils.config import Content_generator_model_config as cgconfig
 
 def get_azure_response(text):
     endpoint = None

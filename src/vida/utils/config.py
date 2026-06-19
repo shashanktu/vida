@@ -1,9 +1,6 @@
 import os
 from dotenv import load_dotenv
-try:
-    from .AzureSecrets import get_azure_secret_value
-except ImportError:
-    from AzureSecrets import get_azure_secret_value
+from vida.utils.AzureSecrets import get_azure_secret_value
 import json
 
 load_dotenv()
