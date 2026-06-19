@@ -1,5 +1,5 @@
 import os
-from clientConnection import get_credential
+from vida.utils.clientConnection import get_credential
 from azure.keyvault.secrets import SecretClient #type: ignore
 from azure.core.exceptions import ResourceNotFoundError, HttpResponseError #type: ignore
 
