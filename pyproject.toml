@@ -28,7 +28,8 @@ dependencies = [
   "openai",
   "pydantic[email]",
   "pydantic-settings",
-  "agent-framework==1.1.0"
+  "agent-framework",
+  "azure-keyvault-secrets"
 ]
 
 requires-python = ">=3.12"

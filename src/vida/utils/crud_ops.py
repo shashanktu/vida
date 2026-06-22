@@ -2,14 +2,14 @@ import os
 import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from sqlalchemy.orm import Session, selectinload
-from database.database import sessionlocal
-from models.tables.config_details import ConfigDetails
-from models.tables.Agents import Agents
-from models.tables.workflows import Workflow, WorkflowDetails
-from models.requests.workflow_table_requests import workflow_table_requests, workflow_details_table_requests
-from models.requests.Agents_table_requests import AgentCreateRequest, AgentUpdateRequest
-from models.responses.Agents_table_responses import AgentResponse
-from models.responses.config_details_response import ConfigDetailsRequest
+from vida.database.database import sessionlocal
+from vida.models.tables.config_details import ConfigDetails
+from vida.models.tables.Agents import Agents
+from vida.models.tables.workflows import Workflow, WorkflowDetails
+from vida.models.requests.workflow_table_requests import workflow_table_requests, workflow_details_table_requests
+from vida.models.requests.Agents_table_requests import AgentCreateRequest, AgentUpdateRequest
+from vida.models.responses.Agents_table_responses import AgentResponse
+from vida.models.responses.config_details_response import ConfigDetailsRequest
 from typing import Union
 
 

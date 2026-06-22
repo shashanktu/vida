@@ -1,4 +1,4 @@
-from .logger import get_logger
+from vida.utils.logger import get_logger
 
 logger=get_logger(__name__)
 
