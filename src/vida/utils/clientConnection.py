@@ -26,7 +26,7 @@ _credential = None
 #         _credential.get_token("https://cognitiveservices.azure.com/.default")
 #     return _credential
 def get_credential():
-    if os.getenv("WEBSITE_INSTANCE_ID"):
+    if os.getenv("WEBSITE_INSTANCE_ID") or os.getenv("Container_apps"):
         return ManagedIdentityCredential()
 
     return AzureCliCredential()
