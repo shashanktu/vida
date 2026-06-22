@@ -30,7 +30,7 @@ def get_credential():
     if os.getenv("WEBSITE_INSTANCE_ID") or os.getenv("Container_apps"):
         return ManagedIdentityCredential()
 
-    return AzureCliCredential()
+    return ManagedIdentityCredential()
 
 def get_client(model:Annotated[str, Field(default="gpt-4.1-nano", description="AI foundry model used.")],endpoint:Annotated[str, Field(default="https://devops-maf1.cognitiveservices.azure.com/api/projects/proj-default", description="AI foundry endpoint URL.")]):
     global _client
