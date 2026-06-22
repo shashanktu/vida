@@ -20,7 +20,7 @@ Requires-Dist: httpx
 Requires-Dist: openai
 Requires-Dist: pydantic[email]
 Requires-Dist: pydantic-settings
-Requires-Dist: agent-framework
+Requires-Dist: agent-framework==1.1.0
 
 # VIDA
 
