@@ -1,4 +1,5 @@
 from vida.utils.logger import get_logger
+import json
 
 logger=get_logger(__name__)
 
@@ -17,3 +18,9 @@ def clean_yaml_output(yaml_str):
     logger.debug(f"[clean_yaml_output] Cleaned YAML Output:")
     # print(f"[clean_yaml_output] Cleaned YAML: {result}")
     return result
+
+def try_parse_json(text):
+    try:
+        return json.loads(text), True
+    except json.JSONDecodeError:
+        return text, False
