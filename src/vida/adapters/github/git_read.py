@@ -10,9 +10,10 @@ from vida.utils.config import hari_github_token as GITHUB_TOKEN,REPO_OWNER
 from github import Github #type: ignore
 
 logger=get_logger(__name__)
-g = get_github_client()
+# g = get_github_client()
 
-def github_read_contents(path, repo_owner=REPO_OWNER, repo_name="Terraform_modules",g = g):
+def github_read_contents(path, repo_owner=REPO_OWNER, repo_name="Terraform_modules",g: Github = None):
+    g = g if g else get_github_client()
     logger.info(f"[github_agent] [github_read_contents] Reading content from path: {path}")
     try:
         
@@ -33,9 +34,10 @@ def wait_for_latest_workflow(
         workflow_file_name: str = "ci.yml",
         branch: str = "main",
         poll_interval: int = 10,
-        timeout: int = 800,
-        g: Github = g
+        timeout: int = 100,
+        g: Github = None
     ):
+        g = g if g else get_github_client()
         logger.info(f"[github_agent] [wait_for_latest_workflow] Monitoring workflow in repo: {repo_name}")
         print(f"Repo Name: {repo_name},\n Workflow File: {workflow_file_name},\n Branch: {branch}")
         """
@@ -63,17 +65,17 @@ def wait_for_latest_workflow(
             logger.warning(f"[github_agent] [wait_for_latest_workflow] Unable to find workflow '{workflow_file_name}'")
             print(f"Unable to find workflow '{workflow_file_name}'")
             print(str(e))
-            return False
- 
- 
+            return {"error": str(e)}
+
+
         while True:
  
             # Timeout check
             if time.time() - start_time > timeout:
                 logger.warning(f"[github_agent] [wait_for_latest_workflow] Timeout reached while waiting for workflow: {workflow_file_name}")
                 print("Workflow monitoring timed out")
-                return False
- 
+                return {"message": "Workflow monitoring timed out"}
+
             try:
                 runs = workflow.get_runs(branch=branch)
 
@@ -116,22 +118,26 @@ def wait_for_latest_workflow(
                 # SUCCESS
                 if latest_run.conclusion == "success":
                     print("Workflow completed successfully")
-                    return True
+                    return {"message": f"Workflow completed successfully",
+                            "run_details": {latest_run}}
  
                 # FAILURE
                 print(f"Workflow failed with status: {latest_run.conclusion}")
-                return False
- 
+                return {"message": f"Workflow failed with status: {latest_run.conclusion}",
+                        "run_details": {latest_run}}
+
             except Exception as e:
                 print(f"Monitoring error: {str(e)}")
                 time.sleep(poll_interval)
 
-def get_artifact_name_from_run(repo_name: str, workflow_file_name: str, branch: str = "main"):
+def get_artifact_name_from_run(repo_name: str, workflow_file_name: str, branch: str = "main",g: Github = None):
     """
     Fetches the artifact name directly from the GitHub Artifacts API
     for the latest completed workflow run.
     """
+    g = g if g else get_github_client()
     repo = g.get_repo(repo_name)
+    
     
     try:
         workflow = repo.get_workflow(workflow_file_name)
@@ -176,7 +182,8 @@ import zipfile
 import io
 import re    
 
-def get_deployment_url_from_logs(repo_name: str, workflow_file_name: str, branch: str = "main") -> str | None:
+def get_deployment_url_from_logs(repo_name: str, workflow_file_name: str, branch: str = "main", g: Github = None) -> str | None:
+    g = g if g else get_github_client()
     repo = g.get_repo(repo_name)
     
     try:
@@ -218,7 +225,8 @@ def get_deployment_url_from_logs(repo_name: str, workflow_file_name: str, branch
         return None
 import requests  
 
-def get_cd_run_metadata(repo_name: str, workflow_file_name: str, branch: str = "main") -> dict | None:
+def get_cd_run_metadata(repo_name: str, workflow_file_name: str, branch: str = "main", g: Github = None) -> dict | None:
+    g = g if g else get_github_client()
     repo = g.get_repo(repo_name)
 
     try:
