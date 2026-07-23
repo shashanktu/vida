@@ -10,8 +10,8 @@ from pprint import pformat
 class Base_Agent:
     _instance = None
     name = None
-    model = baconfig.model or "gpt-4.1-nano"
-    AI_endpoint = baconfig.AI_endpoint or "https://devops-maf1.cognitiveservices.azure.com/api/projects/proj-default"
+    model = None
+    AI_endpoint = None
     instructions = None
     tools = []
     context_providers = []

@@ -14,3 +14,12 @@ class terraform_agent_request(BaseModel):
     prompt: str
     session: Optional[str] = None
 
+class failure_agent_request(BaseModel):
+    prompt: str
+    pat_token: Optional[str]
+    session: Optional[str] = None
+
+class co_ordinator_agent_request(BaseModel):
+    prompt: str
+    pat_token: Optional[str]
+    session: Optional[str] = None

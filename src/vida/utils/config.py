@@ -19,6 +19,26 @@ class Base_agent_config:
     retries = int(get_azure_secret_value("Azure-connection-retries"), 3)
     # AI_foundry_key = get_azure_secret_value("AI-foundry-key")
 
+class Yaml_agent_config:
+    model = get_azure_secret_value("Yaml-foundry-model")
+    AI_endpoint = get_azure_secret_value("Yaml-foundry-url")
+    retries = int(get_azure_secret_value("Azure-connection-retries"), 3)
+
+class Terraform_agent_config:
+    model = get_azure_secret_value("Terraform-foundry-model")
+    AI_endpoint = get_azure_secret_value("Terraform-foundry-url")
+    retries = int(get_azure_secret_value("Azure-connection-retries"), 3)
+
+class Failure_agent_config:
+    model = get_azure_secret_value("Failure-foundry-model")
+    AI_endpoint = get_azure_secret_value("Failure-foundry-url")
+    retries = int(get_azure_secret_value("Azure-connection-retries"), 3)
+
+class Github_agent_config:
+    model = get_azure_secret_value("Github-foundry-model")
+    AI_endpoint = get_azure_secret_value("Github-foundry-url")
+    retries = int(get_azure_secret_value("Azure-connection-retries"), 3)
+
 class Content_generator_model_config:
     AI_content_version = get_azure_secret_value("AI-content-version")
     AI_content_endpoint = get_azure_secret_value("AI-content-endpoint")
