@@ -5,6 +5,11 @@ import asyncio
 from vida.utils.config import Base_agent_config as baconfig
 import inspect
 from pprint import pformat
+from vida.utils.crud_ops import AgentRunOps as aro
+from vida.database.database import sessionlocal
+from vida.models.requests.Agent_Run_request import AgentRunCreateRequest, AgentRunUpdateRequest
+from datetime import datetime, timezone
+import json
 # from agent_framework.middleware import SecurityAgentMiddleware #type: ignore
 
 class Base_Agent:
@@ -40,23 +45,53 @@ class Base_Agent:
         return cls._instance
 
     # async def run(self, prompt: str):
-    async def run(self, prompt: str, retries: int = 2, tools: list = None, session=None):
+    async def run(self, prompt: str, retries: int = 2, tools: list = None, session=None, task_id = -1):
+        issue = None
+        response = None
+        start_time = datetime.now(timezone.utc)
         try:
             for attempt in range(retries + 1):
                 try:
-                    return await self._agent.run(prompt,
+                    response =  await self._agent.run(prompt,
                                                 session=session if session else self._session,
                                                 middleware=self.run_middleware,
                                                 tools=tools or [],
                                                 )
+                    return response
                 except ChatClientException as e:
                     if "Azure CLI" in str(e) and attempt < retries:
                         print(f"Azure CLI not ready, retrying in 2s... (attempt {attempt + 1})")
                         await asyncio.sleep(2)
                     else:
+                        issue = str(e)
                         raise
+        except Exception as e:
+            issue = str(e)
+            raise
+
         finally:
+            end_time = datetime.now(timezone.utc)
+            db=sessionlocal()
+            status = "success" if response else "failed"
+            agent_ids = json.load(open("vida/data/agent_id.json"))
+            run_details = AgentRunCreateRequest(
+                    agent_id=agent_ids.get(self.name),
+                    task_id=task_id,
+                    run_prompt=prompt,
+                    run_status=status,
+                    run_result=response,
+                    run_logs_path="dummy_logs_path",
+                    issue=issue,
+                    start_time=start_time,
+                    end_time=end_time,
+                )
+
+
+
+            aro().add_run(db=db, run=run_details)
+
             await self._clear_session()
+            db.close()
         # return await self._agent.run(prompt)
 
     # async def _clear_session(self):
