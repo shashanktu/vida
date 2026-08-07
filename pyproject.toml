@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "vida"
-version = "0.1.0"
+version = "0.2.0"
 description = "VIDA: A modular agent-based automation platform for CI/CD, infrastructure, and code management."
 readme = "README.md"
 authors = [
