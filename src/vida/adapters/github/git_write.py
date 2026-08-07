@@ -101,8 +101,9 @@ def commit_files(
 
 
 from github import Github #type: ignore
-async def set_github_secret(repo_full_name: str, secret_name: str, secret_value: str, g : Github = get_github_client()) -> None:
+async def set_github_secret(repo_full_name: str, secret_name: str, secret_value: str, g : Github = None) -> None:
     try:
+        g = g if g else get_github_client()                
         print("Repo Full Name :", repo_full_name)
 
         repo = g.get_repo(repo_full_name)
@@ -140,5 +141,4 @@ async def set_github_secret(repo_full_name: str, secret_name: str, secret_value:
 
 import asyncio
 if __name__ == "__main__":
-    result = asyncio.run(set_github_secret("Hari-var/test_repo", "test_secret", "test_value"))
-    print(result)
+    pass

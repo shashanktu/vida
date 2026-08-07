@@ -1,0 +1,7 @@
+{
+    "Co_ordinator": 1,
+    "failure_agent": 2,
+    "github_agent": 3,
+    "terraform_agent": 4,
+    "yaml_agent": 5
+}

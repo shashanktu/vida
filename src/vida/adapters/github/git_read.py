@@ -224,8 +224,50 @@ def get_deployment_url_from_logs(repo_name: str, workflow_file_name: str, branch
         print(f"Error retrieving deployment URL: {e}")
         return None
 import requests  
+def get_run_metadata(repo_name: str, workflow_file_name: str, branch: str = "main", g: Github = None) -> dict | None:
+    g = g if g else get_github_client()
+    repo = g.get_repo(repo_name)
 
-def get_cd_run_metadata(repo_name: str, workflow_file_name: str, branch: str = "main", g: Github = None) -> dict | None:
+    try:
+        workflow = repo.get_workflow(workflow_file_name)
+        runs = workflow.get_runs(branch=branch, status="completed")
+
+        if runs.totalCount == 0:
+            print("No completed runs found.")
+            return None
+
+        latest_run = runs[0]
+        print(latest_run.id)
+        print(latest_run.name)
+        print(latest_run.status)          # queued, in_progress, completed
+        print(latest_run.conclusion)      # success, failure, cancelled, etc.
+        print(latest_run.event)           # push, pull_request, workflow_dispatch, etc.
+        print(latest_run.head_branch)
+        print(latest_run.head_sha)
+        print(latest_run.run_number)
+        print(latest_run.run_attempt)
+        print(latest_run.created_at)
+        print(latest_run.updated_at)
+        print(latest_run.run_started_at)
+        print(latest_run.html_url)
+        print(latest_run.jobs_url)
+        print(latest_run.logs_url)
+        print(latest_run.workflow_id)
+        print(latest_run.triggering_actor.login)
+
+        return {
+            "workflow_name" : latest_run.name,
+            "run_id"        : latest_run.id,
+            "branch"        : latest_run.head_branch,
+            "conclusion"    : latest_run.conclusion,
+            "html_url"      : latest_run.html_url
+        }
+
+    except Exception as e:
+        print(f"Error fetching run metadata: {e}")
+        return None
+
+def get_run_data(repo_name: str, workflow_file_name: str, branch: str = "main", g: Github = None) -> dict | None:
     g = g if g else get_github_client()
     repo = g.get_repo(repo_name)
 
@@ -286,5 +328,5 @@ if __name__ == "__main__":
     repo_name = "Hari-var/insure-flow-webapp"
     file_name = "webapp-cd.yml"
     branch = "master"
-    result = get_cd_run_metadata(repo_name=repo_name, workflow_file_name=file_name, branch=branch)
-    print(result)
+    # result = get_cd_run_metadata(repo_name=repo_name, workflow_file_name=file_name, branch=branch)
+    # print(result)
