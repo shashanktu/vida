@@ -12,4 +12,4 @@ httpx
 openai
 pydantic[email]
 pydantic-settings
-agent-framework
+agent-framework==1.1.0
