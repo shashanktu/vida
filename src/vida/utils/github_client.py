@@ -1,8 +1,7 @@
 # from utils.config import hari_github_token as github_token
 from dotenv import load_dotenv
 load_dotenv()
-# from vida.utils.config import hari_github_token as github_token
-from vida.utils.config import github_token as github_token
+from vida.utils.config import hari_github_token as github_token
 from github import Github, Auth #type: ignore
 from vida.utils.request_context import github_pat_ctx
 

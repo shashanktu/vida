@@ -32,7 +32,6 @@ src/vida/models/validators/config_validator_model.py
 src/vida/utils/__init__.py
 src/vida/utils/clientConnection.py
 src/vida/utils/config.py
-src/vida/utils/content_generator.py
 src/vida/utils/crud_ops.py
 src/vida/utils/fallback_pipeline.py
 src/vida/utils/github_client.py
