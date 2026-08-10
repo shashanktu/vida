@@ -27,7 +27,7 @@ _credential = None
 #     return _credential
 def get_credential():
     print("Getting credential... : ", os.getenv("Container_apps"))
-    if os.getenv("WEBSITE_INSTANCE_ID") or os.getenv("Container_apps"):
+    if os.getenv("WEBSITE_INSTANCE_ID") or os.getenv("Container_apps") == "True":
         return ManagedIdentityCredential()
 
     return AzureCliCredential()

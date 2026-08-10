@@ -8,6 +8,7 @@ from pprint import pformat
 from vida.utils.crud_ops import AgentRunOps as aro
 from vida.database.database import sessionlocal
 from vida.models.requests.Agent_Run_request import AgentRunCreateRequest, AgentRunUpdateRequest
+from vida.utils.preprocess import serialize_agent_response
 from datetime import datetime, timezone
 import json
 # from agent_framework.middleware import SecurityAgentMiddleware #type: ignore
@@ -79,7 +80,8 @@ class Base_Agent:
                     task_id=task_id,
                     run_prompt=prompt,
                     run_status=status,
-                    run_result=response,
+                    run_result=json.loads(response.text),
+                    raw_run_result=serialize_agent_response(response),
                     run_logs_path="dummy_logs_path",
                     issue=issue,
                     start_time=start_time,

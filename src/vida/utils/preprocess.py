@@ -24,3 +24,36 @@ def try_parse_json(text):
         return json.loads(text), True
     except json.JSONDecodeError:
         return text, False
+
+from typing import Any
+
+
+def _to_jsonable(value: Any) -> Any:
+    if value is None or isinstance(value, (str, int, float, bool)):
+        return value
+
+    if isinstance(value, dict):
+        return {
+            str(key): _to_jsonable(item)
+            for key, item in value.items()
+        }
+
+    if isinstance(value, (list, tuple, set)):
+        return [_to_jsonable(item) for item in value]
+
+    if hasattr(value, "__dict__"):
+        return _to_jsonable(value.__dict__)
+
+    return str(value)
+
+
+def serialize_agent_response(response: Any) -> dict[str, Any]:
+    if response is None:
+        return {}
+
+    result = _to_jsonable(response)
+
+    if not isinstance(result, dict):
+        return {"result": result}
+
+    return result
