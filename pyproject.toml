@@ -39,5 +39,5 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 mypackage = [
-    "vida/data/*.json"
+    "data/*.json"
 ]
