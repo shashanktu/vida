@@ -11,6 +11,7 @@ from vida.models.requests.Agent_Run_request import AgentRunCreateRequest, AgentR
 from vida.utils.preprocess import serialize_agent_response
 from datetime import datetime, timezone
 import json
+from importlib.resources import files
 # from agent_framework.middleware import SecurityAgentMiddleware #type: ignore
 
 class Base_Agent:
@@ -74,7 +75,9 @@ class Base_Agent:
             end_time = datetime.now(timezone.utc)
             db=sessionlocal()
             status = "success" if response else "failed"
-            agent_ids = json.load(open("vida/data/agent_id.json"))
+            agent_ids = json.loads(
+                files("vida").joinpath("data/agent_id.json").read_text()
+            )
             run_details = AgentRunCreateRequest(
                     agent_id=agent_ids.get(self.name),
                     task_id=task_id,
