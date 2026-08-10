@@ -28,6 +28,7 @@ dependencies = [
   "openai",
   "pydantic[email]",
   "pydantic-settings",
+  "psycopg2",
   "agent-framework",
   "azure-keyvault-secrets"
 ]
