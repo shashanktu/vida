@@ -43,7 +43,7 @@ class AgentsOps:
         agent = db.query(Agents).filter(Agents.id == agent_id).first()
         if not agent:
             return None
-        for key, value in details.model_dump().items():
+        for key, value in details.model_dump(exclude_unset=True).items():
             setattr(agent, key, value)
         db.commit()
         db.refresh(agent)
@@ -81,18 +81,18 @@ class AgentTaskOps:
     def get_task_by_id(self, db: Session, task_id: int):
         return db.query(AgentTaskDetails).filter(AgentTaskDetails.id == task_id).first()
 
-    def add_task(self, db: Session, task: AgentTaskDetailsCreateRequest):
+    def add_task(self, db: Session, task: AgentTaskDetailsCreateRequest) -> int:
         new_task = AgentTaskDetails(**task.model_dump())
         db.add(new_task)
         db.commit()
         db.refresh(new_task)
-        return new_task.id
+        return int(new_task.id)
 
     def update_task(self, db: Session, task_id: int, task: AgentTaskDetailsUpdateRequest):
         existing_task = db.query(AgentTaskDetails).filter(AgentTaskDetails.id == task_id).first()
         if not existing_task:
             return None
-        for key, value in task.model_dump().items():
+        for key, value in task.model_dump(exclude_unset=True).items():
             setattr(existing_task, key, value)
         db.commit()
         db.refresh(existing_task)
@@ -138,7 +138,7 @@ class AgentRunOps:
         existing_run = db.query(AgentRunLogs).filter(AgentRunLogs.id == run_id).first()
         if not existing_run:
             return None
-        for key, value in run.model_dump().items():
+        for key, value in run.model_dump(exclude_unset=True).items():
             setattr(existing_run, key, value)
         db.commit()
         db.refresh(existing_run)
@@ -162,7 +162,7 @@ class AgentMetricsOps:
         existing_metrics = db.query(AgentMetrics).filter(AgentMetrics.agent_id == agent_id).first()
         if not existing_metrics:
             return None
-        for key, value in details.model_dump().items():
+        for key, value in details.model_dump(exclude_unset=True).items():
             setattr(existing_metrics, key, value)
         db.commit()
         db.refresh(existing_metrics)
