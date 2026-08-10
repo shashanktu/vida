@@ -4,7 +4,7 @@ from sqlalchemy import JSON, DateTime, Float, Integer, String, Text, ForeignKey
 from typing import Optional
 from datetime import datetime
 
-from database.database import Base
+from vida.database.database import Base
 
 class Workflow(Base):
     __tablename__ = "workflows"

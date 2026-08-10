@@ -3,7 +3,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import JSON, DateTime, Float, Integer, String, Text, ForeignKey
 from typing import Optional, Literal
 
-from database.database import Base
+from vida.database.database import Base
 
 class Agents(Base):
     __tablename__ = "agents"
@@ -22,6 +22,8 @@ class Agents(Base):
     metrics: Mapped["AgentMetrics"] = relationship("AgentMetrics", uselist=False, back_populates="agent", cascade="all, delete-orphan")
 
 class AgentMetrics(Base):
+    __tablename__ = "agent_metrics"
+
     id : Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     agent_id: Mapped[int] = mapped_column(Integer, ForeignKey("agents.id"), unique=True, nullable=False)
     total_runs : Mapped[int] = mapped_column(Integer, nullable=True, default=0)

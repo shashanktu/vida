@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Mapped, mapped_column
 from typing import Optional
-from database.database import Base
+from vida.database.database import Base
 
 class AgentDetails(Base):
     __tablename__ = "agent_details"
