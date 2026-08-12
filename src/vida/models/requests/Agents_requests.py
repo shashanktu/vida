@@ -5,31 +5,31 @@ class github_agent_request(BaseModel):
     
     prompt: str
     pat_token: Optional[str]
-    task_id: Optional[str] = None
+    task_id: Optional[int] = None
     session: Optional[str] = None
 
 class yaml_agent_request(BaseModel):
     
     prompt: str
     session: Optional[str] = None
-    task_id: Optional[str] = None
+    task_id: Optional[int] = None
 
 class terraform_agent_request(BaseModel):
     
     prompt: str
     session: Optional[str] = None
-    task_id: Optional[str] = None
+    task_id: Optional[int] = None
 
 class failure_agent_request(BaseModel):
     
     prompt: str
     pat_token: Optional[str]
-    task_id: Optional[str] = None
+    task_id: Optional[int] = None
     session: Optional[str] = None
 
 class co_ordinator_agent_request(BaseModel):
     
     prompt: str
     pat_token: Optional[str]
-    task_id: Optional[str] = None
+    task_id: Optional[int] = None
     session: Optional[str] = None
