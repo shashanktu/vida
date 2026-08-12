@@ -83,7 +83,7 @@ class Base_Agent:
                     task_id=task_id,
                     run_prompt=prompt,
                     run_status=status,
-                    run_result=json.loads(response.text),
+                    run_result=serialize_agent_response(response),
                     raw_run_result=serialize_agent_response(response),
                     run_logs_path="dummy_logs_path",
                     issue=issue,
