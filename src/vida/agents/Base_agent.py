@@ -6,8 +6,10 @@ from vida.utils.config import Base_agent_config as baconfig
 import inspect
 from pprint import pformat
 from vida.utils.crud_ops import AgentRunOps as aro
+from vida.utils.crud_ops import AgentMetricsOps as amo
 from vida.database.database import sessionlocal
 from vida.models.requests.Agent_Run_request import AgentRunCreateRequest, AgentRunUpdateRequest
+from vida.models.requests.Agent_Metrics_requests import AgentMetricsCreateRequest, AgentMetricsUpdateRequest
 from vida.utils.preprocess import serialize_agent_response
 from datetime import datetime, timezone
 import json
@@ -47,11 +49,20 @@ class Base_Agent:
         return cls._instance
 
     # async def run(self, prompt: str):
-    async def run(self, prompt: str, retries: int = 2, tools: list = None, session=None, task_id = -1):
+    async def run(self, prompt: str, retries: int = 2, tools: list = [None], session=None, task_id = -1):
         issue = None
         response = None
         start_time = datetime.now(timezone.utc)
+        status = "success" if response else "failed"
+        db=sessionlocal()
+        agent_ids = json.loads(
+            files("vida").joinpath("data/agent_id.json").read_text()
+        )
+        agent_id = agent_ids.get(self.name)
+
         try:
+
+            amo().update_metrics(db=db,agent_id=agent_id, details=AgentMetricsUpdateRequest(agent_status="active") )
             for attempt in range(retries + 1):
                 try:
                     response =  await self._agent.run(prompt,
@@ -73,14 +84,11 @@ class Base_Agent:
 
         finally:
             end_time = datetime.now(timezone.utc)
-            db=sessionlocal()
-            status = "success" if response else "failed"
-            agent_ids = json.loads(
-                files("vida").joinpath("data/agent_id.json").read_text()
-            )
+
+            metrics = amo().get_metrics_by_agent_id(db=db, agent_id=agent_id)
             if response:
                 run_details = AgentRunCreateRequest(
-                        agent_id=agent_ids.get(self.name),
+                        agent_id=agent_id,
                         task_id=task_id,
                         run_prompt=prompt,
                         run_status=status,
@@ -91,8 +99,14 @@ class Base_Agent:
                         start_time=start_time,
                         end_time=end_time,
                     )
+                if metrics:
+                    metric_details = AgentMetricsUpdateRequest(
+                        total_runs=metrics.total_runs+1,
+                        total_success_runs=metrics.total_success_runs+1,
+                        agent_status= "idle"
+                    )
 
-
+                    amo().update_metrics(db=db, agent_id= agent_id,details=metric_details)
 
                 aro().add_run(db=db, run=run_details)
             else:
@@ -107,6 +121,14 @@ class Base_Agent:
                     start_time=start_time,
                     end_time=end_time,
                 )
+                if metrics:
+                    metric_details = AgentMetricsUpdateRequest(
+                        total_runs=metrics.total_runs+1,
+                        total_fail_runs=metrics.total_fail_runs+1,
+                        agent_status= "idle"
+                    )
+
+                    amo().update_metrics(db=db, agent_id= agent_id, details=metric_details)
 
                 aro().add_run(db=db, run=run_details)
 
