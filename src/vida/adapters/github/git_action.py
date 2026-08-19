@@ -1,5 +1,5 @@
 from typing import Optional
-from utils.github_client import get_github_client
+from vida.utils.github_client import get_github_client
 from github import Github #type: ignore
 
 

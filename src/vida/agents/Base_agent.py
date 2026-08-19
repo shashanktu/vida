@@ -78,22 +78,37 @@ class Base_Agent:
             agent_ids = json.loads(
                 files("vida").joinpath("data/agent_id.json").read_text()
             )
-            run_details = AgentRunCreateRequest(
+            if response:
+                run_details = AgentRunCreateRequest(
+                        agent_id=agent_ids.get(self.name),
+                        task_id=task_id,
+                        run_prompt=prompt,
+                        run_status=status,
+                        run_result=serialize_agent_response(response.text if response else None),
+                        raw_run_result=serialize_agent_response(response),
+                        run_logs_path="dummy_logs_path",
+                        issue=issue,
+                        start_time=start_time,
+                        end_time=end_time,
+                    )
+
+
+
+                aro().add_run(db=db, run=run_details)
+            else:
+                print(f"Failed to get response")
+                run_details = AgentRunCreateRequest(
                     agent_id=agent_ids.get(self.name),
                     task_id=task_id,
                     run_prompt=prompt,
-                    run_status=status,
-                    run_result=serialize_agent_response(response),
-                    raw_run_result=serialize_agent_response(response),
+                    run_status="failed",
                     run_logs_path="dummy_logs_path",
-                    issue=issue,
+                    issue="Failed to get response",
                     start_time=start_time,
                     end_time=end_time,
                 )
 
-
-
-            aro().add_run(db=db, run=run_details)
+                aro().add_run(db=db, run=run_details)
 
             await self._clear_session()
             db.close()
