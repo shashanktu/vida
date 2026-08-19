@@ -1,7 +1,7 @@
 from typing import Optional
 from pydantic import BaseModel
 
-class ci_builder_requet(BaseModel):
+class ci_builder_request(BaseModel):
     tool: str
     techstack: str
     repo_name: str
