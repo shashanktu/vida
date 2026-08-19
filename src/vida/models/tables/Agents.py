@@ -29,7 +29,7 @@ class AgentMetrics(Base):
     total_runs : Mapped[int] = mapped_column(Integer, nullable=True, default=0)
     total_success_runs : Mapped[int] = mapped_column(Integer, nullable=True, default=0)
     total_fail_runs : Mapped[int] = mapped_column(Integer, nullable=True, default=0)
-    agent_status: Mapped[Literal["active", "idle"]] = mapped_column(String(20), nullable=False, default="idle")
+    agent_status: Mapped[Literal["running", "idle","offline"]] = mapped_column(String(20), nullable=False, default="idle")
 
     agent: Mapped["Agents"] = relationship("Agents", back_populates="metrics")
 

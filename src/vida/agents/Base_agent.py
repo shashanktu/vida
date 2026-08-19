@@ -49,7 +49,7 @@ class Base_Agent:
         return cls._instance
 
     # async def run(self, prompt: str):
-    async def run(self, prompt: str, retries: int = 2, tools: list = [None], session=None, task_id = -1):
+    async def run(self, prompt: str, retries: int = 2, tools: list = None, session=None, task_id = -1):
         issue = None
         response = None
         start_time = datetime.now(timezone.utc)
@@ -62,7 +62,7 @@ class Base_Agent:
 
         try:
 
-            amo().update_metrics(db=db,agent_id=agent_id, details=AgentMetricsUpdateRequest(agent_status="active") )
+            amo().update_metrics(db=db,agent_id=agent_id, details=AgentMetricsUpdateRequest(agent_status="running") )
             for attempt in range(retries + 1):
                 try:
                     response =  await self._agent.run(prompt,
