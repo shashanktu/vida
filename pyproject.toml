@@ -30,6 +30,7 @@ dependencies = [
   "pydantic-settings",
   "psycopg2",
   "agent-framework",
+  "agent-framework-foundry",
   "azure-keyvault-secrets"
 ]
 
