@@ -99,6 +99,9 @@ def commit_files(
         print(f"Unexpected error: {e}")
         return f"Unexpected error while committing: {str(e)}"
 
+#=======================================================================================#
+# Repo manage secrets
+#=======================================================================================#
 
 from github import Github #type: ignore
 async def set_github_secret(repo_full_name: str, secret_name: str, secret_value: str, g : Github = None) -> None:
@@ -138,6 +141,84 @@ async def set_github_secret(repo_full_name: str, secret_name: str, secret_value:
     #         "Failed to set secret '%s' on %s: %s",
     #         secret_name, repo_full_name, e.data
     #     )
+
+def repo_delete_secret(name: str,repo_name: str, g: Github = None):
+    g = g if g else get_github_client()
+    repo = g.get_repo(repo_name)
+    repo.delete_secret(name)
+    print(f"[repo] Secret '{name}' deleted.")
+
+#=======================================================================================#
+# Repo manage variables
+#=======================================================================================#   
+
+def repo_create_or_update_variable(name: str, value: str, repo_name: str, g: Github = None):
+    g = g if g else get_github_client()
+    repo = g.get_repo(repo_name)
+    from vida.adapters.github.git_read import repo_get_variable  # type: ignore
+    existing = repo_get_variable(name, repo_name, g)
+    if existing:
+        v = repo.get_variable(name)
+        v.edit(value)
+    else:
+        repo.create_variable(name, value)
+
+def repo_delete_variable(name: str,repo_name: str, g: Github = None):
+    g = g if g else get_github_client()
+    repo = g.get_repo(repo_name)
+    v = repo.get_variable(name)
+    v.delete()
+    print(f"[repo] Variable '{name}' deleted.")
+
+#=======================================================================================#
+# Org manage secrets
+#=======================================================================================#
+
+def org_create_or_update_secret(name: str, value: str, org_name: str, visibility: str = "all", selected_repos=None, g: Github = None):
+    g = g if g else get_github_client()
+    org = g.get_organization(org_name)
+    """
+    visibility: 'all', 'private', or 'selected'
+    selected_repos: list of Repository objects, required if visibility='selected'
+    """
+    if visibility == "selected" and selected_repos:
+        org.create_secret(name, value, visibility=visibility, secret_type="actions")
+        s = org.get_secret(name)
+        s.add_repo(*selected_repos)  # or set_repos(selected_repos) to replace the whole list
+    else:
+        org.create_secret(name, value, visibility=visibility, secret_type="actions")
+    print(f"[org] Secret '{name}' created/updated with visibility='{visibility}'.")
+
+def org_delete_secret(name: str, org_name: str, g: Github = None):
+    g = g if g else get_github_client()
+    org = g.get_organization(org_name)
+    org.delete_secret(name)
+    print(f"[org] Secret '{name}' deleted.")
+
+#=======================================================================================#
+# Org manage variables
+#=======================================================================================#
+
+def org_create_or_update_variable(name: str, value: str, org_name:str, visibility: str = "all", selected_repos=None, g: Github = None):
+    g = g if g else get_github_client()
+    org = g.get_organization(org_name)
+    from vida.adapters.github.git_read import org_get_variable  # type: ignore
+    existing = org_get_variable(name, org_name, g)
+    if existing:
+        v = org.get_variable(name)
+        v.edit(value, visibility=visibility)
+    else:
+        org.create_variable(name, value, visibility=visibility)
+        if visibility == "selected" and selected_repos:
+            v = org.get_variable(name)
+            v.add_repo(*selected_repos)
+
+def org_delete_variable(name: str,org_name: str, g: Github = None):
+    g = g if g else get_github_client()
+    org = g.get_organization(org_name)
+    v = org.get_variable(name)
+    v.delete()
+    print(f"[org] Variable '{name}' deleted.")
 
 import asyncio
 if __name__ == "__main__":

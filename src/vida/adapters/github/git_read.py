@@ -324,9 +324,103 @@ def get_run_data(repo_name: str, workflow_file_name: str, branch: str = "main", 
         print(f"Error fetching CD metadata: {e}")
         return None
 
+#=======================================================================================#
+# Repo get secrets
+#=======================================================================================#
+
+def list_git_secrets(repo_name: str, g: Github = None):
+    g = g if g else get_github_client()
+    repo = g.get_repo(repo_name)
+    secrets = repo.get_secrets()
+
+    return [{"name": s.name, "created_at": s.created_at, "updated_at": s.updated_at} for s in secrets]
+
+# def repo_get_all_secrets():
+#     secrets = repo.get_secrets()
+#     return [{"name": s.name, "created_at": s.created_at, "updated_at": s.updated_at} for s in secrets]
+
+def repo_get_secret(name: str, repo_name: str, g: Github = None):
+    g = g if g else get_github_client()
+    repo = g.get_repo(repo_name)
+    try:
+        s = repo.get_secret(name)
+        return {"name": s.name, "created_at": s.created_at, "updated_at": s.updated_at}
+    except GithubException as e:
+        if e.status == 404:
+            return None
+        raise
+
+#=======================================================================================#
+# Repo get variabled
+#=======================================================================================#
+
+def repo_get_all_variables(repo_name: str, g: Github = None):
+    g = g if g else get_github_client()
+    repo = g.get_repo(repo_name)
+    variables = repo.get_variables()
+    return [{"name": v.name, "value": v.value, "created_at": v.created_at, "updated_at": v.updated_at}
+             for v in variables]
+
+def repo_get_variable(name: str, repo_name: str, g: Github = None):
+    g = g if g else get_github_client()
+    repo = g.get_repo(repo_name)
+    try:
+        v = repo.get_variable(name)
+        return {"name": v.name, "value": v.value, "created_at": v.created_at, "updated_at": v.updated_at}
+    except GithubException as e:
+        if e.status == 404:
+            return None
+        raise
+#=======================================================================================#
+# Org get variables
+#=======================================================================================#
+def org_get_all_variables(org_name: str, g: Github = None):
+    g = g if g else get_github_client()
+    org = g.get_organization(org_name)
+    variables = org.get_variables()
+    return [{"name": v.name, "value": v.value, "visibility": v.visibility,
+             "created_at": v.created_at, "updated_at": v.updated_at} for v in variables]
+
+def org_get_variable(name: str, org_name: str, g: Github = None):
+    g = g if g else get_github_client()
+    org = g.get_organization(org_name)
+    try:
+        v = org.get_variable(name)
+        return {"name": v.name, "value": v.value, "visibility": v.visibility,
+                "created_at": v.created_at, "updated_at": v.updated_at}
+    except GithubException as e:
+        if e.status == 404:
+            return None
+        raise
+
+#=======================================================================================#
+# Org get secrets
+#=======================================================================================#
+
+def org_get_all_secrets(org_name: str, g: Github = None):
+    g = g if g else get_github_client()
+    org = g.get_organization(org_name)
+    secrets = org.get_secrets()
+    return [{"name": s.name, "visibility": s.visibility,
+             "created_at": s.created_at, "updated_at": s.updated_at} for s in secrets]
+
+def org_get_secret(name: str, org_name: str, g: Github = None):
+    g = g if g else get_github_client()
+    org = g.get_organization(org_name)
+    try:
+        s = org.get_secret(name)
+        return {"name": s.name, "visibility": s.visibility,
+                "created_at": s.created_at, "updated_at": s.updated_at}
+    except GithubException as e:
+        if e.status == 404:
+            return None
+        raise
+
+
 if __name__ == "__main__":
     repo_name = "Hari-var/insure-flow-webapp"
     file_name = "webapp-cd.yml"
     branch = "master"
+    result = list_git_secrets(repo_name=repo_name)
     # result = get_cd_run_metadata(repo_name=repo_name, workflow_file_name=file_name, branch=branch)
-    # print(result)
+    print(result)
