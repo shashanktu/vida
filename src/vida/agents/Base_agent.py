@@ -49,28 +49,35 @@ class Base_Agent:
         return cls._instance
 
     # async def run(self, prompt: str):
-    async def run(self, prompt: str, retries: int = 2, tools: list = None, session=None, task_id = -1):
+    async def run(self, prompt: str, retries: int = 2, tools: list = None, session: dict = None, task_id = -1):
         issue = None
         response = None
         start_time = datetime.now(timezone.utc)
-        status = "success" if response else "failed"
-        db=sessionlocal()
+        
         agent_ids = json.loads(
             files("vida").joinpath("data/agent_id.json").read_text()
         )
         agent_id = agent_ids.get(self.name)
 
-        try:
+        def get_fresh_db():
+            return sessionlocal()
 
-            amo().update_metrics(db=db,agent_id=agent_id, details=AgentMetricsUpdateRequest(agent_status="running") )
+        try:
+            db = get_fresh_db()
+            try:
+                amo().update_metrics(db=db, agent_id=agent_id, details=AgentMetricsUpdateRequest(agent_status="running"))
+            finally:
+                db.close()
+            from agent_framework import AgentSession  # type: ignore
+            active_session = AgentSession.from_dict(session) if session else self._session
             for attempt in range(retries + 1):
                 try:
                     response =  await self._agent.run(prompt,
-                                                session=session if session else self._session,
+                                                session=active_session,
                                                 middleware=self.run_middleware,
                                                 tools=tools or [],
                                                 )
-                    return response
+                    return response, active_session.to_dict()
                 except ChatClientException as e:
                     if "Azure CLI" in str(e) and attempt < retries:
                         print(f"Azure CLI not ready, retrying in 2s... (attempt {attempt + 1})")
@@ -81,59 +88,59 @@ class Base_Agent:
         except Exception as e:
             issue = str(e)
             raise
-
+        
         finally:
+            status = "success" if response else "failed"
             end_time = datetime.now(timezone.utc)
 
-            metrics = amo().get_metrics_by_agent_id(db=db, agent_id=agent_id)
-            if response:
-                run_details = AgentRunCreateRequest(
-                        agent_id=agent_id,
+            db = get_fresh_db()
+            try:
+                metrics = amo().get_metrics_by_agent_id(db=db, agent_id=agent_id)
+                if response:
+                    run_details = AgentRunCreateRequest(
+                            agent_id=agent_id,
+                            task_id=task_id,
+                            run_prompt=prompt,
+                            run_status=status,
+                            run_result=serialize_agent_response(response.text if response else None),
+                            raw_run_result=serialize_agent_response(response),
+                            run_logs_path="dummy_logs_path",
+                            issue=issue,
+                            start_time=start_time,
+                            end_time=end_time,
+                        )
+                    if metrics:
+                        metric_details = AgentMetricsUpdateRequest(
+                            total_runs=metrics.total_runs+1,
+                            total_success_runs=metrics.total_success_runs+1,
+                            agent_status="idle"
+                        )
+                        amo().update_metrics(db=db, agent_id=agent_id, details=metric_details)
+                    aro().add_run(db=db, run=run_details)
+                else:
+                    print(f"Failed to get response")
+                    run_details = AgentRunCreateRequest(
+                        agent_id=agent_ids.get(self.name),
                         task_id=task_id,
                         run_prompt=prompt,
-                        run_status=status,
-                        run_result=serialize_agent_response(response.text if response else None),
-                        raw_run_result=serialize_agent_response(response),
+                        run_status="failed",
                         run_logs_path="dummy_logs_path",
-                        issue=issue,
+                        issue="Failed to get response",
                         start_time=start_time,
                         end_time=end_time,
                     )
-                if metrics:
-                    metric_details = AgentMetricsUpdateRequest(
-                        total_runs=metrics.total_runs+1,
-                        total_success_runs=metrics.total_success_runs+1,
-                        agent_status= "idle"
-                    )
-
-                    amo().update_metrics(db=db, agent_id= agent_id,details=metric_details)
-
-                aro().add_run(db=db, run=run_details)
-            else:
-                print(f"Failed to get response")
-                run_details = AgentRunCreateRequest(
-                    agent_id=agent_ids.get(self.name),
-                    task_id=task_id,
-                    run_prompt=prompt,
-                    run_status="failed",
-                    run_logs_path="dummy_logs_path",
-                    issue="Failed to get response",
-                    start_time=start_time,
-                    end_time=end_time,
-                )
-                if metrics:
-                    metric_details = AgentMetricsUpdateRequest(
-                        total_runs=metrics.total_runs+1,
-                        total_fail_runs=metrics.total_fail_runs+1,
-                        agent_status= "idle"
-                    )
-
-                    amo().update_metrics(db=db, agent_id= agent_id, details=metric_details)
-
-                aro().add_run(db=db, run=run_details)
+                    if metrics:
+                        metric_details = AgentMetricsUpdateRequest(
+                            total_runs=metrics.total_runs+1,
+                            total_fail_runs=metrics.total_fail_runs+1,
+                            agent_status="idle"
+                        )
+                        amo().update_metrics(db=db, agent_id=agent_id, details=metric_details)
+                    aro().add_run(db=db, run=run_details)
+            finally:
+                db.close()
 
             await self._clear_session()
-            db.close()
         # return await self._agent.run(prompt)
 
     # async def _clear_session(self):
