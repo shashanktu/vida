@@ -69,7 +69,7 @@ class Base_Agent:
             finally:
                 db.close()
             from agent_framework import AgentSession  # type: ignore
-            active_session = AgentSession.from_dict(session) if session else self._session
+            active_session = AgentSession.from_dict(session) if session else self._agent.create_session()
             for attempt in range(retries + 1):
                 try:
                     response =  await self._agent.run(prompt,
