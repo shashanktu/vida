@@ -75,8 +75,11 @@ class AgentTaskOps:
     def get_all_tasks(self, db: Session):
         return db.query(AgentTaskDetails).all()
 
-    def get_agent_tasks(self, db: Session, agent_id: int):
+    def get_agent_tasks_by_agent_id(self, db: Session, agent_id: int):
         return db.query(AgentTaskDetails).filter(AgentTaskDetails.agent_id == agent_id).all()
+
+    def get_agent_tasks(self, db: Session, from_task_id: int, to_task_id: int):
+        return db.query(AgentTaskDetails).filter(AgentTaskDetails.id.between(from_task_id, to_task_id)).all()
 
     def get_task_by_id(self, db: Session, task_id: int):
         return db.query(AgentTaskDetails).filter(AgentTaskDetails.id == task_id).first()
@@ -112,6 +115,9 @@ class AgentRunOps:
 
     def get_run_by_id(self, db: Session, run_id: int):
         return db.query(AgentRunLogs).filter(AgentRunLogs.id == run_id).first()
+    
+    def get_runs(self, db: Session, from_run_id: int, to_run_id: int):
+        return db.query(AgentRunLogs).filter(AgentRunLogs.id.between(from_run_id, to_run_id)).all()
 
     def get_run_by_task_id(self, db: Session, task_id: int):
         return db.query(AgentRunLogs).filter(AgentRunLogs.task_id == task_id).all()
