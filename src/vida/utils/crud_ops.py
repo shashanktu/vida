@@ -1,7 +1,7 @@
 import os
 import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.orm import Session, selectinload, joinedload
 from vida.database.database import sessionlocal
 from vida.models.tables.config_details import ConfigDetails
 from vida.models.tables.Agents import Agents, AgentMetrics, AgentRunLogs, AgentTaskDetails
@@ -48,6 +48,21 @@ class AgentsOps:
         db.commit()
         db.refresh(agent)
         return agent
+
+    def get_agent_with_metrics(self, db: Session, agent_id: int):
+        return (
+            db.query(Agents)
+            .options(joinedload(Agents.metrics))
+            .filter(Agents.id == agent_id)
+            .first()
+        )
+
+    def get_all_agents_with_metrics(self, db: Session):
+        return (
+            db.query(Agents)
+            .options(joinedload(Agents.metrics))
+            .all()
+        )
 
 class WorkflowOps:
     def get_workflows(self, db: Session):
@@ -109,6 +124,22 @@ class AgentTaskOps:
         db.commit()
         return existing_task
 
+    def get_tasks_by_status(self, db: Session, status: str):
+        return db.query(AgentTaskDetails).filter(AgentTaskDetails.task_status == status).all()
+
+    def get_running_tasks(self, db: Session):
+        return db.query(AgentTaskDetails).filter(AgentTaskDetails.task_status == "running").all()
+
+    def get_failed_tasks(self, db: Session):
+        return (
+            db.query(AgentTaskDetails)
+            .filter(AgentTaskDetails.task_status == "failed", AgentTaskDetails.issue.isnot(None))
+            .all()
+        )
+
+    def get_tasks_paginated(self, db: Session, offset: int = 0, limit: int = 50):
+        return db.query(AgentTaskDetails).order_by(AgentTaskDetails.start_time.desc()).offset(offset).limit(limit).all()
+
 class AgentRunOps:
     def get_all_runs(self, db: Session):
         return db.query(AgentRunLogs).all()
@@ -150,9 +181,50 @@ class AgentRunOps:
         db.refresh(existing_run)
         return existing_run
 
+    def get_runs_by_status(self, db: Session, status: str):
+        return db.query(AgentRunLogs).filter(AgentRunLogs.run_status == status).all()
+
+    def get_running_runs(self, db: Session):
+        return db.query(AgentRunLogs).filter(AgentRunLogs.run_status == "running").all()
+
+    def get_failed_runs(self, db: Session):
+        return (
+            db.query(AgentRunLogs)
+            .filter(AgentRunLogs.run_status == "failed", AgentRunLogs.issue.isnot(None))
+            .all()
+        )
+
+    def get_recent_runs(self, db: Session, limit: int = 20):
+        return (
+            db.query(AgentRunLogs)
+            .order_by(AgentRunLogs.start_time.desc())
+            .limit(limit)
+            .all()
+        )
+
+    def get_runs_paginated(self, db: Session, offset: int = 0, limit: int = 50):
+        return db.query(AgentRunLogs).order_by(AgentRunLogs.start_time.desc()).offset(offset).limit(limit).all()
+
+    def get_run_duration_stats(self, db: Session, agent_id: int):
+        from sqlalchemy import func
+        result = (
+            db.query(
+                func.avg(func.extract("epoch", AgentRunLogs.end_time - AgentRunLogs.start_time)).label("avg_duration_sec"),
+                func.min(func.extract("epoch", AgentRunLogs.end_time - AgentRunLogs.start_time)).label("min_duration_sec"),
+                func.max(func.extract("epoch", AgentRunLogs.end_time - AgentRunLogs.start_time)).label("max_duration_sec"),
+            )
+            .filter(AgentRunLogs.agent_id == agent_id, AgentRunLogs.end_time.isnot(None))
+            .first()
+        )
+        return {"avg_duration_sec": result.avg_duration_sec, "min_duration_sec": result.min_duration_sec, "max_duration_sec": result.max_duration_sec}
+
 class AgentMetricsOps:
     def get_all_metrics(self, db: Session):
-        return db.query(AgentMetrics).all()
+         return (
+            db.query(AgentMetrics)
+            .options(joinedload(AgentMetrics.agent))
+            .all()
+        )
     
     def get_metrics_by_agent_id(self, db: Session, agent_id: int):
         return db.query(AgentMetrics).filter(AgentMetrics.agent_id == agent_id).first()
@@ -181,6 +253,65 @@ class AgentMetricsOps:
         db.delete(existing_metrics)
         db.commit()
         return existing_metrics
+    
+
+# ── additions to AgentTaskOps ─────────────────────────────────────────────────
+    
+
+# ── additions to AgentRunOps ──────────────────────────────────────────────────
+
+# ── new class ─────────────────────────────────────────────────────────────────
+class DashboardOps:
+    def get_summary(self, db: Session):
+        from sqlalchemy import func
+        total_agents = db.query(func.count(Agents.id)).scalar()
+        total_tasks = db.query(func.count(AgentTaskDetails.id)).scalar()
+        total_runs = db.query(func.count(AgentRunLogs.id)).scalar()
+        success_runs = db.query(func.count(AgentRunLogs.id)).filter(AgentRunLogs.run_status == "success").scalar()
+        failed_runs = db.query(func.count(AgentRunLogs.id)).filter(AgentRunLogs.run_status == "failed").scalar()
+        running_now = db.query(func.count(AgentRunLogs.id)).filter(AgentRunLogs.run_status == "running").scalar()
+        return {
+            "total_agents": total_agents,
+            "total_tasks": total_tasks,
+            "total_runs": total_runs,
+            "success_runs": success_runs,
+            "failed_runs": failed_runs,
+            "running_now": running_now,
+            "success_rate": round((success_runs / total_runs) * 100, 2) if total_runs else 0.0,
+        }
+
+    def get_agent_task_status_breakdown(self, db: Session):
+        from sqlalchemy import func
+        rows = (
+            db.query(
+                AgentTaskDetails.agent_id,
+                AgentTaskDetails.task_status,
+                func.count(AgentTaskDetails.id).label("count")
+            )
+            .group_by(AgentTaskDetails.agent_id, AgentTaskDetails.task_status)
+            .all()
+        )
+        breakdown: dict = {}
+        for agent_id, status, count in rows:
+            breakdown.setdefault(agent_id, {})[status] = count
+        return breakdown
+
+    def get_agent_run_status_breakdown(self, db: Session):
+        from sqlalchemy import func
+        rows = (
+            db.query(
+                AgentRunLogs.agent_id,
+                AgentRunLogs.run_status,
+                func.count(AgentRunLogs.id).label("count")
+            )
+            .group_by(AgentRunLogs.agent_id, AgentRunLogs.run_status)
+            .all()
+        )
+        breakdown: dict = {}
+        for agent_id, status, count in rows:
+            breakdown.setdefault(agent_id, {})[status] = count
+        return breakdown
+
 
 #Agent tasks calls
 
