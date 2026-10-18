@@ -54,6 +54,10 @@ class Azure_config:
     tenant_id = get_azure_secret_value("AZURE-TENANT-ID")
     subscription_id = get_azure_secret_value("AZURE-SUBSCRIPTION-ID")
 
+class Azure_communication_service_config:
+    ACS_SENDER_ADDRESS = get_azure_secret_value("ACS-SENDER-ADDRESS")
+    ACS_CONNECTION_STRING = get_azure_secret_value("ACS-CONNECTION-STRING")
+    ACS_ENDPOINT = get_azure_secret_value("ACS-ENDPOINT")
 
 #create a dictionary with Azure
 azure_config = {
