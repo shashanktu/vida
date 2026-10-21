@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "vida"
-version = "0.1.0"
+version = "0.2.0"
 description = "VIDA: A modular agent-based automation platform for CI/CD, infrastructure, and code management."
 readme = "README.md"
 authors = [
@@ -28,13 +28,21 @@ dependencies = [
   "openai",
   "pydantic[email]",
   "pydantic-settings",
+  "psycopg2-binary",
   "agent-framework",
   "azure-keyvault-secrets",
   "azure-communication-email",
   "azure-identity"
+  "agent-framework-foundry",
+
 ]
 
-requires-python = ">=3.12"
+requires-python = ">=3.11"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+vida = [
+    "data/*.json"
+]
