@@ -107,6 +107,8 @@ class Base_Agent:
                             run_result=serialize_agent_response_json(response.text if response else None),
                             raw_run_result=serialize_agent_response_json(response),
                             usage_details=response_data.get("usage_details"),
+                            run_result=serialize_agent_response(response.text if response else None),
+                            raw_run_result=serialize_agent_response(response),
                             run_logs_path="dummy_logs_path",
                             issue=issue,
                             start_time=start_time,
