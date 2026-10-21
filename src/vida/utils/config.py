@@ -59,6 +59,13 @@ class Azure_communication_service_config:
     ACS_CONNECTION_STRING = get_azure_secret_value("ACS-CONNECTION-STRING")
     ACS_ENDPOINT = get_azure_secret_value("ACS-ENDPOINT")
 
+class Mail_config:
+    recepient = get_azure_secret_value("MAIL-RECIPIENT")
+    carbon_copy = get_azure_secret_value("MAIL-CARBON-COPY")
+    blind_carbon_copy = get_azure_secret_value("MAIL-BLIND-CARBON-COPY")
+    reply_to = get_azure_secret_value("MAIL-REPLY-TO")
+
+
 #create a dictionary with Azure
 azure_config = {
     "clientId":Azure_config.client_id,

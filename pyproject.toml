@@ -29,7 +29,9 @@ dependencies = [
   "pydantic[email]",
   "pydantic-settings",
   "agent-framework",
-  "azure-keyvault-secrets"
+  "azure-keyvault-secrets",
+  "azure-communication-email",
+  "azure-identity"
 ]
 
 requires-python = ">=3.12"
