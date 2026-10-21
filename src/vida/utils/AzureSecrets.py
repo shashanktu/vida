@@ -1,5 +1,6 @@
 from vida.utils.clientConnection import get_credential
 from azure.keyvault.secrets import SecretClient #type: ignore
+from azure.core.exceptions import ResourceNotFoundError
 # from config import azure_secrets_url a s asu
 import os
 from dotenv import load_dotenv  
