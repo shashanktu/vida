@@ -3,6 +3,7 @@ from ..utils.clientConnection import get_client
 from agent_framework.exceptions import ChatClientException #type: ignore
 import asyncio
 from vida.utils.config import Base_agent_config as baconfig
+from vida.utils.config import Mail_config as mailconfig
 import inspect
 from pprint import pformat
 from vida.utils.crud_ops import AgentRunOps as aro
@@ -10,7 +11,7 @@ from vida.utils.crud_ops import AgentMetricsOps as amo
 from vida.database.database import sessionlocal
 from vida.models.requests.Agent_Run_request import AgentRunCreateRequest, AgentRunUpdateRequest
 from vida.models.requests.Agent_Metrics_requests import AgentMetricsCreateRequest, AgentMetricsUpdateRequest
-from vida.utils.preprocess import serialize_agent_response
+from vida.utils.preprocess import serialize_agent_response, serialize_agent_response_json
 from datetime import datetime, timezone
 import json
 from importlib.resources import files
@@ -102,8 +103,8 @@ class Base_Agent:
                             task_id=task_id,
                             run_prompt=prompt,
                             run_status=status,
-                            run_result=serialize_agent_response(response.text if response else None),
-                            raw_run_result=serialize_agent_response(response),
+                            run_result=serialize_agent_response_json(response.text if response else None),
+                            raw_run_result=serialize_agent_response_json(response),
                             run_logs_path="dummy_logs_path",
                             issue=issue,
                             start_time=start_time,
@@ -117,6 +118,14 @@ class Base_Agent:
                         )
                         amo().update_metrics(db=db, agent_id=agent_id, details=metric_details)
                     aro().add_run(db=db, run=run_details)
+
+                    # to_mails = mailconfig.recepient.split(",") if mailconfig.recepient else os.environ.get("MAIL_RECIPIENT", "").split(",")
+                    # if self.name == "Failure_Agent":
+                    #     acs_send_email(
+                    #         to=to_mails,
+                    #         subject=f"[{summarized_task_name}] -  Azure DevOps Agent Run",
+                    #         body=f"{self.name} run completed with status: {status}\n\nLogs:\n{run_details.run_logs_path} \n\n output: {run_details.run_result}"
+                    #     )
                 else:
                     print(f"Failed to get response")
                     run_details = AgentRunCreateRequest(
@@ -291,6 +300,6 @@ class Base_Agent:
 
             tools_data[tool_name] = tool_info
 
-        return tools_data
+        return tools_data        
 
 

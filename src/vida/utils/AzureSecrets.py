@@ -16,10 +16,12 @@ def get_all_azure_secrets():
     return [secret.name for secret in client.list_properties_of_secrets()]
 
 
-def get_azure_secret_value(secret_name: str) -> str:
-    key = client.get_secret(secret_name)
-    return key.value
-
+def get_azure_secret_value(secret_name):
+    try:
+        secret = client.get_secret(secret_name)
+        return secret.value or ""
+    except ResourceNotFoundError:
+        return ""
 def set_azure_secret(secret_name: str, secret_value: str) -> str:
     client.set_secret(secret_name, secret_value)
     return f"Secret \"{secret_name}\" added successfully!"
