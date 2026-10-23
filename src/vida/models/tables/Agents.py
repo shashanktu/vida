@@ -64,6 +64,7 @@ class AgentRunLogs(Base):
     run_logs_path: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     run_result: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
     raw_run_result: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
+    usage_details: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
     issue: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
     run_status: Mapped[Literal["pending", "running", "success", "failed"]] = mapped_column(String(20), nullable=False, default="pending")
@@ -74,4 +75,3 @@ class AgentRunLogs(Base):
         "AgentTaskDetails",
         back_populates="runs"
     )
-

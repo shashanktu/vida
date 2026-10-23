@@ -98,13 +98,15 @@ class Base_Agent:
             try:
                 metrics = amo().get_metrics_by_agent_id(db=db, agent_id=agent_id)
                 if response:
+                    response_data = serialize_agent_response(response)
                     run_details = AgentRunCreateRequest(
                             agent_id=agent_id,
                             task_id=task_id,
                             run_prompt=prompt,
                             run_status=status,
-                            run_result=serialize_agent_response_json(response.text if response else None),
-                            raw_run_result=serialize_agent_response_json(response),
+                            run_result=serialize_agent_response(response.text if response else None),
+                            raw_run_result=serialize_agent_response(response),
+                            usage_details=response_data.get("usage_details"),
                             run_logs_path="dummy_logs_path",
                             issue=issue,
                             start_time=start_time,
@@ -301,5 +303,4 @@ class Base_Agent:
             tools_data[tool_name] = tool_info
 
         return tools_data        
-
 

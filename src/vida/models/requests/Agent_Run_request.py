@@ -10,6 +10,7 @@ class AgentRunCreateRequest(BaseModel):
     run_logs_path: Optional[str] = None
     run_result: Optional[dict] = None
     raw_run_result: Optional[dict] = None
+    usage_details: Optional[dict] = None
     issue: Optional[str] = None
 
     run_status: Literal["pending", "running", "success", "failed"] = "pending"
@@ -23,6 +24,7 @@ class AgentRunUpdateRequest(BaseModel):
     run_logs_path: Optional[str] = None
     run_result: Optional[dict] = None
     raw_run_result: Optional[dict] = None
+    usage_details: Optional[dict] = None
     issue: Optional[str] = None
 
     run_status: Optional[Literal["pending", "running", "success", "failed"]] = None

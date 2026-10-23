@@ -32,9 +32,8 @@ dependencies = [
   "agent-framework",
   "azure-keyvault-secrets",
   "azure-communication-email",
-  "azure-identity"
-  "agent-framework-foundry",
-
+  "azure-identity",
+  "agent-framework-foundry"
 ]
 
 requires-python = ">=3.11"
