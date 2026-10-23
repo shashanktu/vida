@@ -311,6 +311,22 @@ class DashboardOps:
         for agent_id, status, count in rows:
             breakdown.setdefault(agent_id, {})[status] = count
         return breakdown
+    
+    def get_token_usage_summary(self, db: Session):
+        runs = db.query(AgentRunLogs.agent_id, AgentRunLogs.usage_details).filter(AgentRunLogs.usage_details.isnot(None)).all()
+        keys = ["total_token_count", "input_token_count", "output_token_count",
+                "cache_creation_input_token_count", "cache_read_input_token_count",
+                "reasoning_output_token_count", "openai.cache_write_tokens",
+                "openai.cached_input_tokens", "openai.reasoning_tokens"]
+        totals = {k: 0 for k in keys}
+        by_agent: dict = {}
+        for agent_id, usage in runs:
+            for k in keys:
+                v = usage.get(k, 0) or 0
+                totals[k] += v
+                by_agent.setdefault(agent_id, {k: 0 for k in keys})[k] += v
+        return {"totals": totals, "by_agent": by_agent}
+
 
 
 #Agent tasks calls
