@@ -268,3 +268,22 @@ def serialize_agent_response(response: Any, parse_text: bool = True) -> dict[str
 
 def serialize_agent_response_json(response: Any, **kwargs) -> str:
     return json.dumps(serialize_agent_response(response, **kwargs), indent=2, ensure_ascii=False)
+
+def format_result_for_email(result: Any) -> str:
+    if result is None:
+        return "No result available"
+
+    if isinstance(result, dict):
+        return json.dumps(result, indent=2, ensure_ascii=False)
+
+    if isinstance(result, list):
+        lines = []
+        for item in result:
+            if isinstance(item, (dict, list)):
+                nested = json.dumps(item, indent=2, ensure_ascii=False)
+                lines.append("- " + nested.replace("\n", "\n  "))
+            else:
+                lines.append(f"- {str(item).strip()}")
+        return "\n".join(lines)
+
+    return str(result).strip()
