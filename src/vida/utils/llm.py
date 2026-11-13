@@ -12,7 +12,7 @@ sys.path.insert(
 )
 
 from vida.utils.config import Content_generator_model_config as cgconfig
-from from vida.utils.clientConnection import get_credential  # Adjust import path
+from vida.utils.clientConnection import get_credential  # Adjust import path
 
 logger = logging.getLogger(__name__)
 
